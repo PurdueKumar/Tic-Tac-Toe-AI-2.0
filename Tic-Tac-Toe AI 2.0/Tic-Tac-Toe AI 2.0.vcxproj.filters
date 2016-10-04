@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="rando.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="human.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="game.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="game.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="human.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="player.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="rando.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="ai.cuh">
+      <Filter>Headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Source">
+      <UniqueIdentifier>{47d0f5cf-612e-42bb-bc65-b1a2d051a18a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Headers">
+      <UniqueIdentifier>{3b2139a6-aaa2-40b3-ab89-c262d454e416}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="ai.cu">
+      <Filter>Source</Filter>
+    </CudaCompile>
+  </ItemGroup>
+</Project>
