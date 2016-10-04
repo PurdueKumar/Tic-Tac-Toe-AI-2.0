@@ -45,7 +45,7 @@ ai::ai(int i, int h, int o, int pnum) {
 		goto cleanup;
 	}
 
-	cudaStatus = cudaMalloc((void**)&pred, (sizeof(double) * 8));
+	cudaStatus = cudaMalloc((void**)&pred, (sizeof(double) * 9));
 
 	if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "cudaMalloc for pred failed!");
@@ -60,14 +60,18 @@ ai::ai(int i, int h, int o, int pnum) {
 
 	}
 
-	int t1num = populateMatrix(theta1, t1);
-	int t2num = populateMatrix(theta2, t2);
+	int t1num = populateMatrix(theta1, t1, h * (i + 1));
+	int t2num = populateMatrix(theta2, t2, (h + i) * o);
+
+	theta1.close();
+	theta2.close();
 
 cleanup:
 
 	cudaFree(t1);
 	cudaFree(t2);
-
+	theta1.close();
+	theta2.close();
 }
 
 __global__ void sigKernal(double * t) {
@@ -99,13 +103,15 @@ void ai::sigmoid(double * t, int n) {
 
 }
 
-int ai::populateMatrix(ifstream& in, double * t) {
+int ai::populateMatrix(ifstream& in, double * t, int n) {
 
 	char * line;
 	char * tok;
 	char * next_token;
 	double num;
 	int i = 0;
+	double * temp = (double *)malloc(sizeof(double) * n);
+	cudaError_t cudaStatus;
 
 	line = (char *)malloc(sizeof(char) * 1000);
 
@@ -123,7 +129,7 @@ int ai::populateMatrix(ifstream& in, double * t) {
 		while (tok) {
 
 			num = atof(tok);
-			t[i] = num;
+			temp[i] = num;
 			i++;
 
 			tok = strtok_s(NULL, ",", &next_token);
@@ -132,6 +138,10 @@ int ai::populateMatrix(ifstream& in, double * t) {
 
 	}
 	free(line);
+
+	cudaStatus = cudaMemcpy(t, temp, n, cudaMemcpyHostToDevice);
+
+	free(temp);
 
 	return i;
 }
@@ -178,19 +188,17 @@ int ai::move(int * pMoves, int * grid) {
 	double * input;
 	double * hunits;
 
+	int bias = 1;
+
 	reverseGrid(grid);
 
 	cudaStatus = cudaMalloc((void**)&input, (sizeof(double) * 10));
 	cudaStatus = cudaMalloc((void**)&hunits, (sizeof(double) * 51));
 
-	input[0] = 1;
-	hunits[0] = 1;
+	cudaMemcpy(&input[0], &bias, sizeof(int), cudaMemcpyHostToDevice);
+	cudaMemcpy(&hunits[0], &bias, sizeof(int), cudaMemcpyHostToDevice);
 
-	for (int i = 1; i < 10; i++) {
-
-		input[i] = (double)grid[i - 1];
-
-	}
+	cudaMemcpy(&input[1], &grid, sizeof(int) * 9, cudaMemcpyHostToDevice);
 
 	multiply(t1, input, &hunits[1], 50, 10, 1);
 	sigmoid(hunits, 51);
@@ -208,6 +216,7 @@ int ai::move(int * pMoves, int * grid) {
 			cout << "AI move is " << m << endl;
 			cudaFree(input);
 			cudaFree(hunits);
+
 			return m;
 		}
 
@@ -236,5 +245,7 @@ ai::~ai() {
 	cudaFree(t2);
 	cudaFree(pred);
 
+	cublasDestroy(handle);
 
+	
 }

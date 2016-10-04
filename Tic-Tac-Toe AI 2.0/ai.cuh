@@ -17,7 +17,7 @@ private:
 	int pnum;
 	cublasHandle_t handle;
 
-	int populateMatrix(ifstream&, double *);
+	int populateMatrix(ifstream&, double *, int);
 	void sigmoid(double *, int);
 	void multiply(double *, double *, double *, int, int, int);
 	void reverseGrid(int *);
